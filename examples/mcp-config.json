@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "pdf-server": {
+      "command": "mcp-pdf-server",
+      "args": [
+        "--working-directory", "./documents",
+        "--max-file-size", "52428800",
+        "--timeout", "30000"
+      ],
+      "name": "PDF Processing Server",
+      "description": "Secure PDF text extraction and metadata processing"
+    }
+  }
+}
