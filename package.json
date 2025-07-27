@@ -1,5 +1,5 @@
 {
-  "name": "mcp-pdf-server",
+  "name": "@paredezadrian/mcp-pdf-server",
   "version": "1.1.0",
   "description": "MCP server for secure PDF processing with text extraction, metadata, and page count features",
   "type": "module",
@@ -61,6 +61,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/paredezadrian/mcp-pdf-server.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "bugs": {
     "url": "https://github.com/paredezadrian/mcp-pdf-server/issues"

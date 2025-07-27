@@ -14,7 +14,7 @@ A secure Model Context Protocol (MCP) server built with Node.js/TypeScript that 
 
 ## Installation
 
-### Using npm (Recommended)
+### Using npm (Public Registry)
 
 **Global Installation:**
 ```bash
@@ -34,6 +34,30 @@ npx mcp-pdf-server --working-directory ./pdfs
 
 **NPM Package:** https://www.npmjs.com/package/mcp-pdf-server
 
+### Using GitHub Packages
+
+**Configure npm to use GitHub Packages:**
+```bash
+echo "@paredezadrian:registry=https://npm.pkg.github.com" >> ~/.npmrc
+```
+
+**Global Installation:**
+```bash
+npm install -g @paredezadrian/mcp-pdf-server
+```
+
+**Local Installation:**
+```bash
+npm install @paredezadrian/mcp-pdf-server
+```
+
+**Run without installing:**
+```bash
+npx @paredezadrian/mcp-pdf-server --help
+```
+
+**GitHub Package:** https://github.com/paredezadrian/mcp-pdf-server/packages
+
 ### From Source
 
 ```bash
@@ -50,12 +74,25 @@ npm link
 
 Configure your MCP client to use the server:
 
-**If installed globally:**
+**If installed globally (npm):**
 ```json
 {
   "mcpServers": {
     "pdf-server": {
       "command": "mcp-pdf-server",
+      "args": ["--working-directory", "/path/to/pdfs"],
+      "name": "PDF Processing Server"
+    }
+  }
+}
+```
+
+**If installed globally (GitHub Packages):**
+```json
+{
+  "mcpServers": {
+    "pdf-server": {
+      "command": "@paredezadrian/mcp-pdf-server",
       "args": ["--working-directory", "/path/to/pdfs"],
       "name": "PDF Processing Server"
     }
@@ -70,6 +107,19 @@ Configure your MCP client to use the server:
     "pdf-server": {
       "command": "npx",
       "args": ["mcp-pdf-server", "--working-directory", "/path/to/pdfs"],
+      "name": "PDF Processing Server"
+    }
+  }
+}
+```
+
+**Using npx with GitHub Packages:**
+```json
+{
+  "mcpServers": {
+    "pdf-server": {
+      "command": "npx",
+      "args": ["@paredezadrian/mcp-pdf-server", "--working-directory", "/path/to/pdfs"],
       "name": "PDF Processing Server"
     }
   }
