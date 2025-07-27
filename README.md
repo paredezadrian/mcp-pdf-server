@@ -16,9 +16,23 @@ A secure Model Context Protocol (MCP) server built with Node.js/TypeScript that 
 
 ### Using npm (Recommended)
 
+**Global Installation:**
 ```bash
 npm install -g mcp-pdf-server
 ```
+
+**Local Installation:**
+```bash
+npm install mcp-pdf-server
+```
+
+**Run without installing (using npx):**
+```bash
+npx mcp-pdf-server --help
+npx mcp-pdf-server --working-directory ./pdfs
+```
+
+**NPM Package:** https://www.npmjs.com/package/mcp-pdf-server
 
 ### From Source
 
@@ -36,12 +50,26 @@ npm link
 
 Configure your MCP client to use the server:
 
+**If installed globally:**
 ```json
 {
   "mcpServers": {
     "pdf-server": {
       "command": "mcp-pdf-server",
       "args": ["--working-directory", "/path/to/pdfs"],
+      "name": "PDF Processing Server"
+    }
+  }
+}
+```
+
+**Using npx (no installation required):**
+```json
+{
+  "mcpServers": {
+    "pdf-server": {
+      "command": "npx",
+      "args": ["mcp-pdf-server", "--working-directory", "/path/to/pdfs"],
       "name": "PDF Processing Server"
     }
   }
@@ -175,7 +203,7 @@ Extract text, metadata, and page count in one operation.
 ### Setup
 
 ```bash
-git clone https://github.com/yourusername/mcp-pdf-server.git
+git clone https://github.com/paredezadrian/mcp-pdf-server.git
 cd mcp-pdf-server
 npm install
 ```
