@@ -1,16 +1,18 @@
-# MCP PDF Server
+# MCP PDF Server for Augment Code
 
-A secure Model Context Protocol (MCP) server built with Node.js/TypeScript that allows AI agents to safely read PDF files and extract text, metadata, or page counts. Uses `pdf-parse` for reliable PDF processing.
+A secure Model Context Protocol (MCP) server built with Node.js/TypeScript specifically optimized for **Augment Code's Agent platform**. Allows Augment Agent to safely read PDF files and extract text, metadata, or page counts for documentation analysis, code review, and development workflow integration.
 
 ## Features
 
+- 🤖 **Augment Agent Integration**: Seamlessly integrates with Augment Code's Agent for automated document processing
 - 🔒 **Secure by Design**: Built-in security measures to prevent directory traversal, SSRF attacks, and resource exhaustion
-- 📄 **PDF Processing**: Extract text, metadata, and page counts from PDF files
-- 🌐 **Dual Source Support**: Process both local files and remote URLs
-- 🛡️ **Input Validation**: Comprehensive validation of file paths, URLs, and file types
-- ⚡ **Fast & Reliable**: Uses the proven `pdf-parse` library for consistent results
-- 🔧 **Configurable**: Customizable security settings and working directories
-- 📊 **MCP Compliant**: Full Model Context Protocol implementation
+- 📄 **PDF Processing**: Extract text, metadata, and page counts from PDF files for code documentation and analysis
+- 🌐 **Dual Source Support**: Process both local files and remote URLs (perfect for documentation links)
+- 🛡️ **Input Validation**: Comprehensive validation with Augment-specific security considerations
+- ⚡ **Fast & Reliable**: Uses the proven `pdf-parse` library optimized for development workflows
+- 🔧 **Configurable**: Customizable security settings and working directories for different project needs
+- 📊 **MCP Compliant**: Full Model Context Protocol implementation compatible with Augment's architecture
+- 🎯 **Developer-Focused**: Optimized for common development use cases like API docs, specifications, and technical documentation
 
 ## Installation
 
@@ -70,9 +72,55 @@ npm link
 
 ## Usage
 
-### As MCP Server
+### **🤖 Augment Code Configuration**
 
-Configure your MCP client to use the server:
+#### **Method 1: Using Augment Settings Panel (Recommended)**
+
+1. **Open Augment Settings**:
+   - Press `Cmd/Ctrl + Shift + P`
+   - Select "Augment: Open Settings"
+   - Or click the hamburger menu in Augment panel → Settings
+
+2. **Add MCP Server**:
+   - Scroll to the "MCP Servers" section
+   - Click the `+` button to add a new server
+   - Fill in the configuration:
+
+| Field | Value |
+|-------|-------|
+| **Name** | `pdf-processor` |
+| **Command** | `npx mcp-pdf-server --working-directory /path/to/your/documents` |
+
+3. **Save and Restart**: Restart VS Code to activate the server
+
+#### **Method 2: Manual settings.json Configuration**
+
+1. **Open Settings**:
+   - Press `Cmd/Ctrl + Shift + P`
+   - Select "Augment: Edit Settings"
+   - Click "Edit in settings.json" under Advanced
+
+2. **Add Configuration**:
+
+```json
+{
+  "augment.advanced": {
+    "mcpServers": [
+      {
+        "name": "pdf-processor",
+        "command": "npx",
+        "args": ["mcp-pdf-server", "--working-directory", "/path/to/your/documents"]
+      }
+    ]
+  }
+}
+```
+
+3. **Restart VS Code** to apply changes
+
+### **📋 Other MCP Clients**
+
+For other MCP clients (Claude Desktop, etc.), configure as follows:
 
 **If installed globally (npm):**
 ```json
@@ -247,6 +295,62 @@ Extract text, metadata, and page count in one operation.
 - `MCP_PDF_WORKING_DIR`: Default working directory
 - `MCP_PDF_MAX_FILE_SIZE`: Maximum file size in bytes
 - `MCP_PDF_TIMEOUT`: Default timeout in milliseconds
+
+## 🎯 **Augment Agent Use Cases**
+
+This MCP server is specifically designed to enhance Augment Agent's capabilities for document-driven development workflows:
+
+### **📚 Documentation Analysis**
+- **API Documentation**: Extract text from PDF API docs to understand endpoints and parameters
+- **Technical Specifications**: Process requirement documents and technical specs for feature development
+- **Code Review Guidelines**: Parse PDF guidelines and coding standards for automated code review
+
+### **🔍 Research & Discovery**
+- **Library Documentation**: Extract information from PDF manuals and guides
+- **Academic Papers**: Process research papers for algorithm implementation
+- **Compliance Documents**: Analyze regulatory PDFs for compliance requirements
+
+### **🤖 Agent Automation Examples**
+
+**Example 1: API Documentation Processing**
+```
+Agent Prompt: "Read the API documentation PDF in ./docs/api.pdf and create TypeScript interfaces for all the endpoints"
+
+Agent will:
+1. Use extract-text to read the PDF
+2. Parse the API documentation
+3. Generate TypeScript interfaces
+4. Create proper documentation comments
+```
+
+**Example 2: Requirements Analysis**
+```
+Agent Prompt: "Analyze the requirements document in ./specs/requirements.pdf and create a project plan with tasks"
+
+Agent will:
+1. Extract text from the requirements PDF
+2. Identify key features and requirements
+3. Break down into development tasks
+4. Create implementation plan
+```
+
+**Example 3: Code Standards Enforcement**
+```
+Agent Prompt: "Review my code against the coding standards in ./standards/guidelines.pdf"
+
+Agent will:
+1. Extract coding standards from PDF
+2. Analyze current codebase
+3. Identify violations
+4. Suggest improvements
+```
+
+### **🔧 Integration with Augment Features**
+
+- **Context Engine**: PDF content becomes part of Augment's context for better code suggestions
+- **Agent Memory**: Important PDF information is remembered across sessions
+- **Next Edit**: Use PDF content to guide step-by-step code changes
+- **Chat Integration**: Ask questions about PDF content while coding
 
 ## Development
 

@@ -1,6 +1,137 @@
-# Usage Examples
+# MCP PDF Server Usage Examples for Augment Code
 
-This document provides examples of how to use the MCP PDF Server with various MCP clients.
+This document provides examples of how to use the MCP PDF Server with Augment Code's Agent platform and other MCP clients.
+
+## 🤖 **Augment Agent Examples**
+
+### **API Documentation Processing**
+
+**Scenario**: You have an API documentation PDF and want to implement the endpoints.
+
+**Agent Prompt**:
+```
+"Read the API documentation in ./docs/api-spec.pdf and create TypeScript interfaces for all the user management endpoints. Include proper error handling and validation."
+```
+
+**What Agent Does**:
+1. Uses `extract-text` to read the PDF content
+2. Parses API endpoint specifications
+3. Creates TypeScript interfaces
+4. Implements service classes with error handling
+5. Adds JSDoc comments with API details
+
+### **Requirements Analysis**
+
+**Scenario**: Convert product requirements PDF into implementation plan.
+
+**Agent Prompt**:
+```
+"Based on the requirements document in ./specs/product-requirements.pdf, create a complete project structure and implement the core authentication feature with tests."
+```
+
+**What Agent Does**:
+1. Uses `extract-all` to get complete PDF information
+2. Analyzes requirements and identifies features
+3. Creates project folder structure
+4. Implements authentication system
+5. Writes unit and integration tests
+6. Updates documentation
+
+### **Code Review with Standards**
+
+**Scenario**: Apply coding standards from PDF to existing code.
+
+**Agent Prompt**:
+```
+"Using the coding standards from ./standards/style-guide.pdf, review my current TypeScript files and refactor them to match the guidelines."
+```
+
+**What Agent Does**:
+1. Uses `extract-text` to read coding standards
+2. Analyzes current codebase
+3. Identifies style violations
+4. Refactors code to match standards
+5. Updates comments and documentation
+6. Suggests additional improvements
+
+### **Research Paper Implementation**
+
+**Scenario**: Implement algorithm from academic paper.
+
+**Agent Prompt**:
+```
+"Read the machine learning paper in ./research/algorithm.pdf and implement the described algorithm in TypeScript with proper type safety and unit tests."
+```
+
+**What Agent Does**:
+1. Uses `extract-text` with page ranges for specific sections
+2. Understands algorithm description
+3. Implements algorithm with TypeScript types
+4. Creates comprehensive unit tests
+5. Adds documentation with paper references
+
+## 📋 **Augment Configuration Examples**
+
+### **Single Project Setup**
+
+For a single project with documentation:
+
+```json
+{
+  "augment.advanced": {
+    "mcpServers": [
+      {
+        "name": "project-docs",
+        "command": "npx",
+        "args": [
+          "mcp-pdf-server",
+          "--working-directory", "./docs",
+          "--max-file-size", "10485760"
+        ]
+      }
+    ]
+  }
+}
+```
+
+### **Multi-Purpose Setup**
+
+For projects with different types of documents:
+
+```json
+{
+  "augment.advanced": {
+    "mcpServers": [
+      {
+        "name": "api-docs",
+        "command": "npx",
+        "args": [
+          "mcp-pdf-server",
+          "--working-directory", "./docs/api"
+        ]
+      },
+      {
+        "name": "requirements",
+        "command": "npx",
+        "args": [
+          "mcp-pdf-server",
+          "--working-directory", "./specs",
+          "--max-file-size", "52428800"
+        ]
+      },
+      {
+        "name": "research",
+        "command": "npx",
+        "args": [
+          "mcp-pdf-server",
+          "--working-directory", "./research",
+          "--timeout", "60000"
+        ]
+      }
+    ]
+  }
+}
+```
 
 ## Basic Tool Usage
 

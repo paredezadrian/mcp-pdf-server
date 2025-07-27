@@ -1,7 +1,7 @@
 {
   "name": "@paredezadrian/mcp-pdf-server",
   "version": "1.2.0",
-  "description": "MCP server for secure PDF processing with text extraction, metadata, and page count features",
+  "description": "MCP server for Augment Code Agent - secure PDF processing with text extraction, metadata, and page count features optimized for development workflows",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -26,9 +26,13 @@
   "keywords": [
     "mcp",
     "model-context-protocol",
+    "augment-code",
+    "augment-agent",
     "pdf",
     "pdf-parse",
     "text-extraction",
+    "development-workflow",
+    "documentation",
     "typescript",
     "ai-tools"
   ],
