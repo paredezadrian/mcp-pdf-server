@@ -9,14 +9,37 @@ A secure Model Context Protocol (MCP) server built with Node.js/TypeScript speci
 - 📄 **PDF Processing**: Extract text, metadata, and page counts from PDF files for code documentation and analysis
 - 🌐 **Dual Source Support**: Process both local files and remote URLs (perfect for documentation links)
 - 🛡️ **Input Validation**: Comprehensive validation with Augment-specific security considerations
-- ⚡ **Fast & Reliable**: Uses the proven `pdf-parse` library optimized for development workflows
+- ⚡ **Fast & Reliable**: Uses `pdftotext` (when available) with `pdf-parse` fallback for maximum reliability
 - 🔧 **Configurable**: Customizable security settings and working directories for different project needs
 - 📊 **MCP Compliant**: Full Model Context Protocol implementation compatible with Augment's architecture
 - 🎯 **Developer-Focused**: Optimized for common development use cases like API docs, specifications, and technical documentation
 
 ## Installation
 
-### Using npm (Public Registry)
+### **Step 1: Install pdftotext (Recommended)**
+
+For better PDF processing, install `pdftotext`:
+
+**Windows:**
+```bash
+choco install poppler
+```
+
+**macOS:**
+```bash
+brew install poppler
+```
+
+**Linux:**
+```bash
+sudo apt-get install poppler-utils
+```
+
+> 📋 **Note**: If `pdftotext` is not available, the server automatically falls back to the JavaScript `pdf-parse` library. See [PDFTOTEXT_SETUP.md](./PDFTOTEXT_SETUP.md) for detailed installation instructions.
+
+### **Step 2: Install MCP Server**
+
+#### Using npm (Public Registry)
 
 **Global Installation:**
 ```bash

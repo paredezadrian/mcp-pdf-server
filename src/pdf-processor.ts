@@ -4,6 +4,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import { execSync, spawn } from 'child_process';
 import fetch from 'node-fetch';
 import { lookup } from 'mime-types';
 import type { 
@@ -17,6 +18,7 @@ import { SecurityValidator } from './security.js';
 
 export class PDFProcessor {
   private securityValidator: SecurityValidator;
+  private pdfToTextAvailable: boolean = false;
 
   constructor(
     private securityConfig: SecurityConfig,
@@ -24,13 +26,79 @@ export class PDFProcessor {
     private workingDirectory?: string
   ) {
     this.securityValidator = new SecurityValidator(securityConfig);
+    this.checkPdfToTextAvailability();
+  }
+
+  /**
+   * Check if pdftotext command is available on the system
+   */
+  private checkPdfToTextAvailability(): void {
+    try {
+      execSync('pdftotext -v', { stdio: 'ignore' });
+      this.pdfToTextAvailable = true;
+      console.log('✅ pdftotext is available - using as primary PDF processor');
+    } catch (error) {
+      this.pdfToTextAvailable = false;
+      console.log('⚠️  pdftotext not found - falling back to pdf-parse library');
+      console.log('   Install pdftotext for better PDF processing:');
+      console.log('   - Windows: choco install poppler');
+      console.log('   - macOS: brew install poppler');
+      console.log('   - Linux: apt-get install poppler-utils');
+    }
+  }
+
+  /**
+   * Extract text using pdftotext command
+   */
+  private async extractTextWithPdfToText(
+    filePath: string,
+    options: PDFExtractionOptions = {}
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const args = ['-enc', 'UTF-8'];
+
+      // Add page range if specified
+      if (options.startPage) {
+        args.push('-f', options.startPage.toString());
+      }
+      if (options.endPage) {
+        args.push('-l', options.endPage.toString());
+      }
+
+      // Add input file and output to stdout
+      args.push(filePath, '-');
+
+      const child = spawn('pdftotext', args);
+      let output = '';
+      let errorOutput = '';
+
+      child.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      child.stderr.on('data', (data) => {
+        errorOutput += data.toString();
+      });
+
+      child.on('close', (code) => {
+        if (code === 0) {
+          resolve(output);
+        } else {
+          reject(new Error(`pdftotext failed with code ${code}: ${errorOutput}`));
+        }
+      });
+
+      child.on('error', (error) => {
+        reject(new Error(`Failed to execute pdftotext: ${error.message}`));
+      });
+    });
   }
 
   /**
    * Process a PDF from a local file path
    */
   async processLocalFile(
-    filePath: string, 
+    filePath: string,
     options: PDFExtractionOptions = {}
   ): Promise<PDFProcessingResult> {
     try {
@@ -38,14 +106,44 @@ export class PDFProcessor {
       await this.securityValidator.validateFilePath(filePath, this.workingDirectory);
 
       // Resolve full path
-      const fullPath = this.workingDirectory 
+      const fullPath = this.workingDirectory
         ? path.resolve(this.workingDirectory, filePath)
         : path.resolve(filePath);
 
-      // Read file
+      // Try pdftotext first if available
+      if (this.pdfToTextAvailable) {
+        try {
+          const text = await this.extractTextWithPdfToText(fullPath, options);
+
+          // For pdftotext, we need to get additional info using pdf-parse
+          const buffer = await fs.readFile(fullPath);
+          const pdfParseResult = await this.processPDFBuffer(buffer, filePath, { includeMetadata: true });
+
+          const result: PDFProcessingResult = {
+            success: true,
+            source: filePath,
+            data: {
+              text: text.trim()
+            }
+          };
+
+          // Add optional properties if they exist
+          if (pdfParseResult.data?.pageCount) {
+            result.data!.pageCount = pdfParseResult.data.pageCount;
+          }
+          if (pdfParseResult.data?.metadata) {
+            result.data!.metadata = pdfParseResult.data.metadata;
+          }
+
+          return result;
+        } catch (pdfToTextError) {
+          console.log(`⚠️  pdftotext failed, falling back to pdf-parse: ${pdfToTextError}`);
+          // Fall through to pdf-parse method
+        }
+      }
+
+      // Fallback to pdf-parse
       const buffer = await fs.readFile(fullPath);
-      
-      // Process PDF
       return await this.processPDFBuffer(buffer, filePath, options);
     } catch (error) {
       return {
