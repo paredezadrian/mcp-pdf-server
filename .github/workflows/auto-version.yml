@@ -74,7 +74,20 @@ jobs:
           echo "Next version: $NEXT_VERSION"
           echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
+      - name: Check if version already exists on npm
+        id: npm_check
+        run: |
+          NEXT_VERSION="${{ steps.version.outputs.next_version }}"
+          if npm view mcp-pdf-server@$NEXT_VERSION version 2>/dev/null; then
+            echo "Version $NEXT_VERSION already exists on npm!"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version $NEXT_VERSION does not exist on npm, proceeding..."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Clean up existing tag if it exists
+        if: steps.npm_check.outputs.exists == 'false'
         run: |
           TAG_NAME="v${{ steps.version.outputs.next_version }}"
           echo "Checking for existing tag: $TAG_NAME"
@@ -82,29 +95,62 @@ jobs:
           # Delete local tag if it exists
           if git tag -l "$TAG_NAME" | grep -q "$TAG_NAME"; then
             echo "Deleting local tag $TAG_NAME"
-            git tag -d "$TAG_NAME"
+            git tag -d "$TAG_NAME" || echo "Failed to delete local tag, continuing..."
           fi
 
           # Delete remote tag if it exists
           if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME"; then
             echo "Deleting remote tag $TAG_NAME"
-            git push origin ":refs/tags/$TAG_NAME"
+            git push origin ":refs/tags/$TAG_NAME" || echo "Failed to delete remote tag, continuing..."
           fi
 
+          # Wait a moment for git to sync
+          sleep 2
+
       - name: Update version in package.json
+        if: steps.npm_check.outputs.exists == 'false'
         run: |
-          npm version ${{ steps.version.outputs.next_version }} --no-git-tag-version
+          # Update package.json version manually
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.version = '${{ steps.version.outputs.next_version }}';
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+          # Update package-lock.json if it exists
+          if [ -f package-lock.json ]; then
+            node -e "
+              const fs = require('fs');
+              const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+              lock.version = '${{ steps.version.outputs.next_version }}';
+              if (lock.packages && lock.packages['']) {
+                lock.packages[''].version = '${{ steps.version.outputs.next_version }}';
+              }
+              fs.writeFileSync('package-lock.json', JSON.stringify(lock, null, 2) + '\n');
+            "
+          fi
 
       - name: Create git tag
+        if: steps.npm_check.outputs.exists == 'false'
         run: |
           git add package.json package-lock.json
           git commit -m "v${{ steps.version.outputs.next_version }}"
           git tag "v${{ steps.version.outputs.next_version }}"
 
       - name: Push changes and tags
+        if: steps.npm_check.outputs.exists == 'false'
         run: git push origin main --follow-tags
 
       - name: Publish to npm
+        if: steps.npm_check.outputs.exists == 'false'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Skip publishing (version already exists)
+        if: steps.npm_check.outputs.exists == 'true'
+        run: |
+          echo "⚠️ Version ${{ steps.version.outputs.next_version }} already exists on npm"
+          echo "Skipping version bump and publishing"
+          echo "Current npm version: $(npm view mcp-pdf-server version)"
